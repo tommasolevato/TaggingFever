@@ -1,7 +1,7 @@
 import MySQLdb
 from config import Config
 
-db = MySQLdb.connect(Config.getHost(), Config.getUsername(), Config.getPassword(), Config.getDatabase())
+db = MySQLdb.connect(**Config.getAllParams())
 
 cursor = db.cursor()
 

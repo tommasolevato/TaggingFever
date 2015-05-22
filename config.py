@@ -22,3 +22,11 @@ class Config():
     @staticmethod
     def getDatabase():
         return Config.dict["database"]
+    
+    @staticmethod
+    def getSocket():
+        return Config.dict["socket"]
+    
+    @staticmethod
+    def getAllParams():
+        return Config.dict

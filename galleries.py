@@ -3,6 +3,7 @@ from config import Config
 import argparse
 import descriptorIO
 import numpy
+import pickle
 
 parser = argparse.ArgumentParser()
 parser.add_argument('height', type=int)
@@ -28,12 +29,42 @@ elif probes==10:
 cursor.execute(select)
 #print len(cursor.fetchall())
 
-parser = descriptorIO.DescriptorIO()
+
+cam1 = MySQLdb.connect(host='localhost', user='root', passwd='eddie?54', db='cam1')
+cursor = cam1.cursor()
 
 
-x = numpy.load('/home/tommaso/description-desc_value_pickle.bin')
-y = numpy.load('/home/tommaso/description-desc_value_pickle2.bin')
-print len(x)
+
+select = "select desc_value_pickle from description"
+cursor.execute(select)
+# data = cursor.fetchone()[0]
+# while data is not None:
+for result in cursor:
+    data = result[0]
+    onthefly = pickle.loads(data)
+#     with open('test.bin', 'wb') as f:
+#         f.write(data)
+#     ondisk = numpy.load('test.bin')
+#     assert numpy.array_equal(onthefly, ondisk)
+    print len(onthefly)
+print "done"
+
+#print data[0]
+# for i in range(0,40000):
+#     with open('test.bin', 'wb') as f:
+#         f.write(data)
+#     x = numpy.load('test.bin')
+#     #print len(x)
+# print "done"
+# print len(x)
+# with open('/home/tommaso/description-desc_value_pickle.bin', 'rb') as f:
+#     data = f.read()
+# print data
+# 
+# x = numpy.load('/home/tommaso/description-desc_value_pickle.bin')
+# y = numpy.load('/home/tommaso/description-desc_value_pickle2.bin')
+# print numpy.sum(x)
+# print numpy.sum(y)
 
 # with open('/home/tommaso/description-desc_value_pickle.bin', 'rb') as f:
 #    data = f.read()

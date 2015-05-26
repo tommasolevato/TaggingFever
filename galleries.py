@@ -17,7 +17,7 @@ db = MySQLdb.connect(**Config.getAllParams())
 cursor = db.cursor()
 
 if probes==1:
-    select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<320 and bb_y>193 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
+    select = "select des.id, des.desc_value_pickle, pp.peopleid, det.x,det.y,det.w,det.h,des.image_id,pp.frameid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.x<753 and det.y>121 and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
 elif probes==3:
     select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<348 and bb_y>192 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
 elif probes==5:

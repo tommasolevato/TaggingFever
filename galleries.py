@@ -1,12 +1,13 @@
 import MySQLdb
 from config import Config
 import argparse
-import descriptorIO
+#import descriptorIO
 import numpy
 import pickle
 import detection
 import time
 from descriptorDifference import DescriptorDifference
+import matplotlib.pyplot as plt
 
 
 def rank_n(distances, rank):
@@ -69,6 +70,7 @@ elapsed_time = time.time() - start_time
 
 print "Retrieved probes and galleries in " + elapsed_time.__str__() + " seconds."
 
+
 rank = []
 for i in range(0, 50):
     rank.append(0)
@@ -103,6 +105,9 @@ print "Number of probes: " + howManyProbes.__str__()
 for i in range(0, len(rank)):
     print str(i+1) + ": " + str(float(rank[i]) / howManyProbes)
 
+x = numpy.linspace(1, 50)
+plt.plot(x,rank)
+plt.show()
 
 #cam1Total = "select des.desc_value_pickle, pp.peopleid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
 # elif probes==3:

@@ -8,6 +8,13 @@ import detection
 import time
 from descriptorDifference import DescriptorDifference
 
+
+def rank_n(distances, rank):
+    for i in range(0, rank+1):
+        if distances[0].getProbeId() == distances[i].getTestId():
+            return 1
+    return 0
+
 parser = argparse.ArgumentParser()
 parser.add_argument('height', type=int)
 parser.add_argument('visibility_ratio', type=float)
@@ -62,6 +69,10 @@ elapsed_time = time.time() - start_time
 
 print "Retrieved probes and galleries in " + elapsed_time.__str__() + " seconds."
 
+rank = []
+for i in range(0, 50):
+    rank.append(0)
+
 for probeRawData in probeCursor:
     
     start_time = time.time()
@@ -75,21 +86,24 @@ for probeRawData in probeCursor:
         euclideanDistances.append(dif)
         
     euclideanDistances = sorted(euclideanDistances, cmp=DescriptorDifference.compare)
-    if euclideanDistances[0].getProbeId() == euclideanDistances[0].getTestId():
-        rank1+=1
+#     if euclideanDistances[0].getProbeId() == euclideanDistances[0].getTestId():
+#         rank1+=1
+#     
+#     elif euclideanDistances[0].getProbeId() == euclideanDistances[1].getTestId():
+#         rank2+=1
     
-    elif euclideanDistances[0].getProbeId() == euclideanDistances[1].getTestId():
-        rank2+=1
+    for i in range(0, len(rank)):
+        rank[i] += rank_n(euclideanDistances, i)
     
     elapsed_time = time.time() - start_time
     print "Processed " + howManyProbes.__str__() + " probes in " + elapsed_time.__str__() + " seconds."
         
         
 print "Number of probes: " + howManyProbes.__str__()
-print "Number of rank-1 successful tests: " + rank1.__str__()
-print "Number of rank-2 successful tests: " + rank2.__str__()
-print float(rank1) / howManyProbes
-print float(rank2 + rank1) / howManyProbes   
+for i in range(0, len(rank)):
+    print str(i+1) + ": " + str(float(rank[i]) / howManyProbes)
+
+
 #cam1Total = "select des.desc_value_pickle, pp.peopleid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
 # elif probes==3:
 #     select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<348 and bb_y>192 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"

@@ -4,6 +4,8 @@ import argparse
 import descriptorIO
 import numpy
 import pickle
+import detection
+from descriptorDifference import DescriptorDifference
 
 parser = argparse.ArgumentParser()
 parser.add_argument('height', type=int)
@@ -15,39 +17,87 @@ probes = args['#probes']
 
 
 db = MySQLdb.connect(**Config.getAllParams())
-cursor = db.cursor()
+probeCursor = db.cursor()
+testCursor = db.cursor()
+# if probes==1:
+probeSelect = "select des.desc_value_pickle, pp.peopleid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.x<753 and det.y>121 and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
 
-if probes==1:
-    select = "select des.id, des.desc_value_pickle, pp.peopleid, det.x,det.y,det.w,det.h,des.image_id,pp.frameid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.x<753 and det.y>121 and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
-elif probes==3:
-    select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<348 and bb_y>192 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
-elif probes==5:
-    select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<582 and bb_y>129 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
-elif probes==10:
-    select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<753 and bb_y>121 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
+cam1Gallery = "select des.desc_value_pickle, pp.peopleid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and not (det.x<753 and det.y>121) and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
+cam2Gallery = "select des.desc_value_pickle, pp.peopleid from cam2.description as des, cam2.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C2' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
+cam3Gallery = "select des.desc_value_pickle, pp.peopleid from cam3.description as des, cam3.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C3' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
+cam4Gallery = "select des.desc_value_pickle, pp.peopleid from cam4.description as des, cam4.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C4' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
+
+howManyProbes = 0
+howManySuccessfulResults = 0
+
+probeCursor.execute(probeSelect)
+for probeRawData in probeCursor:
+    probe = detection.Detection(probeRawData[1], pickle.loads(probeRawData[0]))
+    howManyProbes += 1
+    euclideanDistances = []
     
-cursor.execute(select)
+    testCursor.execute(cam1Gallery)
+    for testRawData in testCursor:
+        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
+        euclideanDistances.append(dif)
+        
+    testCursor.execute(cam2Gallery)
+    for testRawData in testCursor:
+        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
+        euclideanDistances.append(dif)
+        
+    testCursor.execute(cam3Gallery)
+    for testRawData in testCursor:
+        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
+        euclideanDistances.append(dif)
+    
+    testCursor.execute(cam4Gallery)
+    for testRawData in testCursor:
+        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
+        euclideanDistances.append(dif)
+        
+    euclideanDistances = sorted(euclideanDistances, cmp=DescriptorDifference.compare)
+    if euclideanDistances[0].getProbeId() == euclideanDistances[0].getTestId():
+        howManySuccessfulResults+=1
+    
+    print howManyProbes
+        
+print float(howManySuccessfulResults) / howManyProbes   
+#cam1Total = "select des.desc_value_pickle, pp.peopleid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
+# elif probes==3:
+#     select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<348 and bb_y>192 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
+# elif probes==5:
+#     select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<582 and bb_y>129 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
+# elif probes==10:
+#     select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<753 and bb_y>121 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"
+#     
+#cursor.execute(cam1Total)
 #print len(cursor.fetchall())
 
+#print cursor.rowcount
 
-cam1 = MySQLdb.connect(host='localhost', user='root', passwd='eddie?54', db='cam1')
-cursor = cam1.cursor()
+#cam1 = MySQLdb.connect(host='localhost', user='root', passwd='eddie?54', db='cam1')
+#cursor = cam1.cursor()
 
 
 
-select = "select desc_value_pickle from description"
-cursor.execute(select)
-# data = cursor.fetchone()[0]
-# while data is not None:
-for result in cursor:
-    data = result[0]
-    onthefly = pickle.loads(data)
-#     with open('test.bin', 'wb') as f:
-#         f.write(data)
-#     ondisk = numpy.load('test.bin')
-#     assert numpy.array_equal(onthefly, ondisk)
-    print numpy.sum(onthefly)
-print "done"
+# select = "select desc_value_pickle from description"
+# cursor.execute(select)
+# # data = cursor.fetchone()[0]
+# # while data is not None:
+# for result in cursor:
+#     data = result[0]
+#     onthefly = pickle.loads(data)
+# #     with open('test.bin', 'wb') as f:
+# #         f.write(data)
+# #     ondisk = numpy.load('test.bin')
+# #     assert numpy.array_equal(onthefly, ondisk)
+#     print numpy.sum(onthefly)
+# print "done"
 
 #print data[0]
 # for i in range(0,40000):

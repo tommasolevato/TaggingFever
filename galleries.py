@@ -8,6 +8,7 @@ import detection
 import time
 from descriptorDifference import DescriptorDifference
 import matplotlib.pyplot as plt
+import random
 
 
 def rank_n(distances, rank):
@@ -69,6 +70,25 @@ for testRawData in testCursor:
 elapsed_time = time.time() - start_time
 
 print "Retrieved probes and galleries in " + elapsed_time.__str__() + " seconds."
+
+galleryPerPeopleId = {}
+for i in range(0, len(gallery)):
+    if( gallery[i].getPersonId().__str__() not in galleryPerPeopleId ):
+        galleryPerPeopleId[gallery[i].getPersonId().__str__()] = [i]
+    #elif(len(galleryPerPeoppleId[gallery[i].getPersonId()])<=3)
+    else:
+        galleryPerPeopleId[gallery[i].getPersonId().__str__()].append(i)
+
+galleryIndicesMVM = []
+for peopleid in galleryPerPeopleId.keys():
+    for i in range(0, probes):
+        galleryIndicesMVM.append(random.choice(galleryPerPeopleId[peopleid]))
+print galleryIndicesMVM
+
+galleryMvsM = []
+for index in galleryIndicesMVM:
+    galleryMvsM.append(gallery[index])
+
 
 rank = []
 for i in range(0, 50):

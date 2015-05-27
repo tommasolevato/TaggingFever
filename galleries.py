@@ -1,7 +1,7 @@
 import MySQLdb
 from config import Config
 import argparse
-#import descriptorIO
+import descriptorIO
 import numpy
 import pickle
 import detection
@@ -69,7 +69,6 @@ for testRawData in testCursor:
 elapsed_time = time.time() - start_time
 
 print "Retrieved probes and galleries in " + elapsed_time.__str__() + " seconds."
-
 
 rank = []
 for i in range(0, 50):

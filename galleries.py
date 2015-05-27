@@ -5,6 +5,7 @@ import descriptorIO
 import numpy
 import pickle
 import detection
+import time
 from descriptorDifference import DescriptorDifference
 
 parser = argparse.ArgumentParser()
@@ -28,45 +29,67 @@ cam3Gallery = "select des.desc_value_pickle, pp.peopleid from cam3.description a
 cam4Gallery = "select des.desc_value_pickle, pp.peopleid from cam4.description as des, cam4.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C4' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
 
 howManyProbes = 0
-howManySuccessfulResults = 0
+rank1 = 0
+rank2 = 0
+
+start_time = time.time()
 
 probeCursor.execute(probeSelect)
+
+gallery = []
+
+testCursor.execute(cam1Gallery)
+for testRawData in testCursor:
+    test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+    gallery.append(test)
+
+testCursor.execute(cam2Gallery) 
+for testRawData in testCursor:
+    test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+    gallery.append(test)
+
+testCursor.execute(cam3Gallery)
+for testRawData in testCursor:
+    test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+    gallery.append(test)
+
+testCursor.execute(cam4Gallery)
+for testRawData in testCursor:
+    test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+    gallery.append(test)
+
+elapsed_time = time.time() - start_time
+
+print "Retrieved probes and galleries in " + elapsed_time.__str__() + " seconds."
+
 for probeRawData in probeCursor:
+    
+    start_time = time.time()
+    
     probe = detection.Detection(probeRawData[1], pickle.loads(probeRawData[0]))
     howManyProbes += 1
     euclideanDistances = []
     
-    testCursor.execute(cam1Gallery)
-    for testRawData in testCursor:
-        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
-        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
-        euclideanDistances.append(dif)
-        
-    testCursor.execute(cam2Gallery)
-    for testRawData in testCursor:
-        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
-        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
-        euclideanDistances.append(dif)
-        
-    testCursor.execute(cam3Gallery)
-    for testRawData in testCursor:
-        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
-        dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
-        euclideanDistances.append(dif)
-    
-    testCursor.execute(cam4Gallery)
-    for testRawData in testCursor:
-        test = detection.Detection(testRawData[1], pickle.loads(testRawData[0]))
+    for test in gallery:
         dif = DescriptorDifference(probe.getPersonId(), test.getPersonId(), numpy.linalg.norm(probe.getPersonDescription() - test.getPersonDescription()))
         euclideanDistances.append(dif)
         
     euclideanDistances = sorted(euclideanDistances, cmp=DescriptorDifference.compare)
     if euclideanDistances[0].getProbeId() == euclideanDistances[0].getTestId():
-        howManySuccessfulResults+=1
+        rank1+=1
     
-    print howManyProbes
+    elif euclideanDistances[0].getProbeId() == euclideanDistances[1].getTestId():
+        rank2+=1
+    
+    elapsed_time = time.time() - start_time
+    print "Processed " + howManyProbes.__str__() + " probes in " + elapsed_time.__str__() + " seconds."
         
-print float(howManySuccessfulResults) / howManyProbes   
+        
+print "Number of probes: " + howManyProbes.__str__()
+print "Number of rank-1 successful tests: " + rank1.__str__()
+print "Number of rank-2 successful tests: " + rank2.__str__()
+print float(rank1) / howManyProbes
+print float(rank2 + rank1) / howManyProbes   
 #cam1Total = "select des.desc_value_pickle, pp.peopleid from cam1.description as des, cam1.detection as det, mnemosyne.people as pp where des.detection_id=det.id and det.h>30 and pp.cameraid='C1' and pp.bb_x=det.x and pp.bb_y=det.y and pp.bb_width=det.w and pp.bb_height=det.h and cast(SUBSTRING_INDEX(pp.frameid, 'F', -1) as unsigned)=des.image_id;"
 # elif probes==3:
 #     select = "select peopleid, count(peopleid) from people where cameraid='C1' and bb_height > " + args['height'].__str__() + " and bb_x<348 and bb_y>192 and bb_width*bb_height *" + args["visibility_ratio"].__str__() + "< bbV_width*bbV_height group by peopleid;"

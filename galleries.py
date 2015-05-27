@@ -46,7 +46,7 @@ for result in cursor:
 #         f.write(data)
 #     ondisk = numpy.load('test.bin')
 #     assert numpy.array_equal(onthefly, ondisk)
-    print len(onthefly)
+    print numpy.sum(onthefly)
 print "done"
 
 #print data[0]

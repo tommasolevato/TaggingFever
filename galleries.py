@@ -4,7 +4,9 @@ from accuracyStrategy import AccuracyStrategy
 from dataset import Dataset
 
 DBData.initialize()
-rankOne = AccuracyStrategy(1)
-dataset = Dataset(DBData.probes, DBData.getAllGalleryData())
-e = Experiment(dataset, rankOne)
-print e.computeAccuracy()
+dataset = Dataset(DBData.probes, DBData.getCameraGalleryData(1))
+e = Experiment(dataset)
+for i in range(1,51):
+    e.addAccuracyStrategy(AccuracyStrategy(i))
+#pprint.pprint(e.computeAccuracy())
+e.computeAndPlotCMCCurve()

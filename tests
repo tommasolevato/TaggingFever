@@ -1,0 +1,44 @@
+Test 1 (SvS)
+Probe set: completo
+Gallery set: completo
+Rank=1
+Descrittore=3920
+#Probes=248
+#ProbesRiconosciuti=124
+Accuratezza=50%
+
+Test 2 (SvS)
+Probe set: completo
+Gallery set: camera 1 completa
+Rank=1
+Descrittore=3920
+#Probes=248
+#ProbesRiconosciuti=111
+Accuratezza=44.75%
+
+Test 3 (SvS)
+Probe set: completo
+Gallery set: camera 2 completa
+Rank=1
+Descrittore=3920
+#Probes=248
+#ProbesRiconosciuti=106
+Accuratezza=42.74%
+
+Test 4 (SvS)
+Probe set: completo
+Gallery set: camera 3 completa
+Rank=1
+Descrittore=3920
+#Probes=248
+#ProbesRiconosciuti=47
+Accuratezza=18.95%
+
+Test 5 (SvS)
+Probe set: completo
+Gallery set: camera 4 completa
+Rank=1
+Descrittore=3920
+#Probes=248
+#ProbesRiconosciuti=20
+Accuratezza=8.06%

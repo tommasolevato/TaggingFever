@@ -5,8 +5,10 @@ from dataset import Dataset
 
 DBData.initialize()
 dataset = Dataset(DBData.probes, DBData.getAllGalleryData())
+
 # dataset.extractNdetectionPerId(10)
 e = Experiment(dataset)
+e.computeAccuracyMvsM(3)
 for i in range(1,51):
     e.addAccuracyStrategy(AccuracyStrategy(i))
 #pprint.pprint(e.computeAccuracy())

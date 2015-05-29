@@ -24,6 +24,17 @@ class Experiment:
                 else:
                     self.accuracies[aStrategy].addUnsuccessfulProbe()
         return self.accuracies
+
+    def computeAccuracyMvsM(self,N):
+        
+        splits = 10
+        for i in range(splits):
+            self.dataset.prepareDictionariesMvsM(N)
+            for peopleid in self.dataset.getKeys():
+                self.dataset.computeMinNxN(peopleid)
+                #etc..
+            
+            
     
     def computeAndPlotCMCCurve(self):
         self.computeAccuracy()

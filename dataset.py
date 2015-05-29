@@ -6,6 +6,8 @@ class Dataset:
     def __init__(self, probeSet, gallerySet):
         self.probeSet = probeSet
         self.gallerySet = gallerySet
+        self.probeDict = {}
+        self.galleryDict = {}
         
     # TODO: change name and signature
     def getRanking(self, probe):
@@ -15,9 +17,10 @@ class Dataset:
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
     
-    def extractNdetectionPerId(self, N):
+    def buildDictFromSet(self, set, N):
+        assert N==3 or N==5 or N==10 
         galleryPerPeopleId = {}
-        for gallery in self.gallerySet:
+        for gallery in set:
             if(gallery.getPersonId() not in galleryPerPeopleId):
                 galleryPerPeopleId[gallery.getPersonId()] = [gallery]
             else:
@@ -35,3 +38,23 @@ class Dataset:
                     addedDetectionsPerId += 1
             assert len(galleryMvsM[personId]) == N
         return galleryMvsM
+    
+    def prepareDictionariesMvsM(self, N):
+        probeDict = self.buildDictFromSet(self.probeSet,N)
+        galleryDict = self.buildDictFromSet(self.gallerySet,N)
+    
+    def getKeys(self):
+        #assert not self.probeDict == {}
+        return self.probeDict.keys()
+        
+    def computeMinNxN(self, peopleid):
+        min = 1000000
+        for probe in probeDict[peopleid]:
+            for gallery in galleryDict[peopleid]:
+                tmp = DetectionDifference(probe, gallery).computeDistance()
+                if(tmp<min):
+                    min=tmp
+                    
+        return min
+    
+    

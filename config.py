@@ -2,7 +2,6 @@ class Config():
 
     dict = {}
     with open("config") as configFile:
-        #TODO: empty lines check
             for line in configFile:
                 key = line.split("=")[0]
                 value = line.split("=")[1]

@@ -1,6 +1,7 @@
 from __future__ import division
 import matplotlib.pyplot as plt
 import pylab
+import numpy
 
 class Experiment:
     
@@ -31,11 +32,15 @@ class Experiment:
         for aStrategy in self.accuracyStrategies:
             x.append(aStrategy.rank)
             rank.append(self.accuracies[aStrategy].computeYourself() * 100)
-        plt.title("CMC-Curve")
-        plt.xlabel("Rank")
-        plt.ylabel("Recognition Rate")
-        plt.ylim(0, 101)
-        plt.plot(x,rank)
+        __, ax = plt.subplots()
+        ax.plot(x,rank)
+        ax.set_title("CMC-Curve")
+        ax.set_xlabel("Rank")
+        ax.set_xticks(numpy.arange(0, max(x), 10))
+        ax.set_yticks(numpy.arange(0, 101, 10))
+        ax.grid()
+        ax.set_ylabel("Recognition Rate")
+        ax.set_ylim(0, 101)
         pylab.show()
     
     class Accuracy:

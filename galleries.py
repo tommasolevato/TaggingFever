@@ -6,10 +6,9 @@ from dataset import Dataset
 DBData.initialize()
 dataset = Dataset(DBData.probes, DBData.getAllGalleryData())
 
-# dataset.extractNdetectionPerId(10)
-e = Experiment(dataset)
-e.computeAccuracyMvsM(3)
-for i in range(1,51):
+N = 5 # N=0: (All vs All), N=1 (SvsS) N=3,5,10 (MvsM)
+e = Experiment(dataset, N)
+for i in range(1,11):
     e.addAccuracyStrategy(AccuracyStrategy(i))
 #pprint.pprint(e.computeAccuracy())
 e.computeAndPlotCMCCurve()

@@ -16,16 +16,23 @@ class Dataset:
             euclideanDistances.append(DetectionDifference(probe, gallery))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
+ 
+    def getRankingMvsM(self, peopleid):
+        euclideanDistances = []
+        self.galleryDict.keys()
+        for galleryPeopleId in self.galleryDict.keys():
+            euclideanDistances.append(self.computeMinNxN(peopleid, galleryPeopleId))
+        ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
+        return ranking
     
     def buildDictFromSet(self, set, N):
-        assert N==3 or N==5 or N==10 
+        assert N==1 or N==3 or N==5 or N==10 
         galleryPerPeopleId = {}
         for gallery in set:
             if(gallery.getPersonId() not in galleryPerPeopleId):
                 galleryPerPeopleId[gallery.getPersonId()] = [gallery]
             else:
                 galleryPerPeopleId[gallery.getPersonId()].append(gallery)
-                
         galleryMvsM = {}
         for personId in galleryPerPeopleId.keys():
             galleryMvsM[personId] = []
@@ -40,21 +47,21 @@ class Dataset:
         return galleryMvsM
     
     def prepareDictionariesMvsM(self, N):
-        probeDict = self.buildDictFromSet(self.probeSet,N)
-        galleryDict = self.buildDictFromSet(self.gallerySet,N)
+        self.probeDict = self.buildDictFromSet(self.probeSet,N)
+        galleryDictComplete = self.buildDictFromSet(self.gallerySet,N)
+        for peopleid in self.probeDict:
+            assert peopleid in galleryDictComplete #fallisce nel caso in cui nella gallery manchi un id che invece si trova nel probe
+            self.galleryDict[peopleid] = galleryDictComplete[peopleid]
     
-    def getKeys(self):
-        #assert not self.probeDict == {}
+    def getProbeKeys(self):
+        assert not self.probeDict == {}
         return self.probeDict.keys()
         
-    def computeMinNxN(self, peopleid):
-        min = 1000000
-        for probe in probeDict[peopleid]:
-            for gallery in galleryDict[peopleid]:
-                tmp = DetectionDifference(probe, gallery).computeDistance()
-                if(tmp<min):
+    def computeMinNxN(self, probePeopleId, galleryPeopleId):
+        min = DetectionDifference(self.probeDict[probePeopleId][0], self.galleryDict[galleryPeopleId][0])
+        for probe in self.probeDict[probePeopleId]:
+            for gallery in self.galleryDict[galleryPeopleId]:
+                tmp = DetectionDifference(probe, gallery)
+                if(DetectionDifference.compare(tmp,min)<0):
                     min=tmp
-                    
         return min
-    
-    

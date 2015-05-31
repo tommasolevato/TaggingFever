@@ -42,7 +42,7 @@ class Experiment:
                 ranking = self.dataset.getRankingMvsM(peopleid)
                 self.computeRankedAccuracy(ranking)
             
-            #brutto
+            #brutta la mia gestione delle accuracy
             for aStrategy in self.accuracies:
                 if(aStrategy not in tmpAccuracies):
                     tmpAccuracies[aStrategy] = self.accuracies[aStrategy]
@@ -53,7 +53,6 @@ class Experiment:
         for aStrategy in tmpAccuracies:
             print aStrategy, tmpAccuracies[aStrategy]
             self.accuracies[aStrategy] = tmpAccuracies[aStrategy]
-            self.accuracies[aStrategy].setSuccesfulProbes(int(tmpAccuracies[aStrategy].getSuccesfulProbes()))
         return self.accuracies
     
     

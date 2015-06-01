@@ -13,12 +13,12 @@ class Experiment:
     def addAccuracyStrategy(self, aStrategy):
         self.accuracyStrategies.append(aStrategy)
         
-    def initAccuracy(self):
+    def _initAccuracy(self):
         self.accuracies = {}
         for aStrategy in self.accuracyStrategies:
             self.accuracies[aStrategy] = Experiment.Accuracy()
             
-    def computeRankedAccuracy(self,ranking):
+    def _computeRankedAccuracy(self,ranking):
         for aStrategy in self.accuracyStrategies:
             if aStrategy.isProbeSuccessfullyRecognized(ranking):
                 self.accuracies[aStrategy].addSuccessfulProbe()
@@ -26,35 +26,21 @@ class Experiment:
                 self.accuracies[aStrategy].addUnsuccessfulProbe()
         
     def computeAccuracy(self):
-        self.initAccuracy()
+        self._initAccuracy()
         for probe in self.dataset.probeSet:
+            #TODO: move ranking computation in next method
             ranking = self.dataset.getRanking(probe)
-            self.computeRankedAccuracy(ranking)
-        return self.accuracies
-
-    def computeAccuracyMvsM(self):
-        tmpAccuracies = {}
-        splits = 10
-        for i in range(splits):
-            self.initAccuracy()
-            self.dataset.prepareDictionariesMvsM(self.N)
-            for peopleid in self.dataset.getProbeKeys():
-                ranking = self.dataset.getRankingMvsM(peopleid)
-                self.computeRankedAccuracy(ranking)
-            
-            #brutta la mia gestione delle accuracy
-            for aStrategy in self.accuracies:
-                if(aStrategy not in tmpAccuracies):
-                    tmpAccuracies[aStrategy] = self.accuracies[aStrategy]
-                    tmpAccuracies[aStrategy].setSuccesfulProbes(float(tmpAccuracies[aStrategy].getSuccesfulProbes())/splits)
-                else:
-                    tmpAccuracies[aStrategy].setSuccesfulProbes( float(tmpAccuracies[aStrategy].getSuccesfulProbes()) + (float(self.accuracies[aStrategy].getSuccesfulProbes()) / splits) )
-                    
-        for aStrategy in tmpAccuracies:
-            print aStrategy, tmpAccuracies[aStrategy]
-            self.accuracies[aStrategy] = tmpAccuracies[aStrategy]
+            self._computeRankedAccuracy(ranking)
         return self.accuracies
     
+    def computeAccuracyMvsM(self):
+        self._initAccuracy()
+        splits = 10
+        for __ in range(0, splits):
+            for peopleid in self.dataset.getProbeKeys(self.N):
+                ranking = self.dataset.getRankingMvsM(peopleid, self.N)
+                self._computeRankedAccuracy(ranking)
+        return self.accuracies
     
     def computeAndPlotCMCCurve(self):
         if(self.N==0):
@@ -70,7 +56,7 @@ class Experiment:
         ax.plot(x,rank)
         ax.set_title("CMC-Curve")
         ax.set_xlabel("Rank")
-        ax.set_xticks(numpy.arange(0, max(x), 10))
+        ax.set_xticks(numpy.arange(0, max(x) + 1, len(x)/5))
         ax.set_yticks(numpy.arange(0, 101, 10))
         ax.grid()
         ax.set_ylabel("Recognition Rate")

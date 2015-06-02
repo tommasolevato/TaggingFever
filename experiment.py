@@ -35,7 +35,7 @@ class Experiment:
     
     def computeAccuracyMvsM(self):
         self._initAccuracy()
-        splits = 10
+        splits = 100 #greater Stability
         for __ in range(0, splits):
             for peopleid in self.dataset.getProbeKeys(self.N):
                 ranking = self.dataset.getRankingMvsM(peopleid, self.N)
@@ -43,8 +43,11 @@ class Experiment:
         return self.accuracies
     
     def computeAndPlotCMCCurve(self):
-        if(self.N==0):
+        if(self.N==-1):
             self.computeAccuracy()
+        elif(self.N==0):
+            print "TODO: Single Vs All"
+            assert not self.N==0 #lancia l'eccezione che manca il SvAll
         else:
             self.computeAccuracyMvsM()
         x = []
@@ -53,6 +56,7 @@ class Experiment:
             x.append(aStrategy.rank)
             rank.append(self.accuracies[aStrategy].computeYourself() * 100)
         __, ax = plt.subplots()
+        print rank #To be printed in a result file
         ax.plot(x,rank)
         ax.set_title("CMC-Curve")
         ax.set_xlabel("Rank")

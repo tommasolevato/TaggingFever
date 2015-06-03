@@ -8,6 +8,7 @@ class Dataset:
         self.gallerySet = gallerySet
         self.probeDict = {}
         self.galleryDict = {}
+        self._prepareDictionaries()
         
     # TODO: change name and signature
     def getRanking(self, probe):
@@ -16,53 +17,96 @@ class Dataset:
             euclideanDistances.append(DetectionDifference(probe, gallery))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
- 
+            
     def getRankingMvsM(self, peopleid, N):
-        self._prepareDictionariesMvsM(N)
+        probe = self.chooseProbeSubList(peopleid, N)
+        gallery = self.chooseGallerySubDict(N)
         euclideanDistances = []
-        for galleryPeopleId in self.galleryDict.keys():
-            euclideanDistances.append(self._computeMinNxN(peopleid, galleryPeopleId))
+        for galleryId in gallery:
+            euclideanDistances.append(self._computeMinNxN(probe, gallery[galleryId]))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
     
-    #TODO: split in more submethods
-    def _buildDictFromSet(self, detectionSet, N):
-        assert N==1 or N==3 or N==5 or N==10 
+    def getRankingSvsAll(self, peopleid):
+        probe = self.chooseProbeSubList(peopleid, 1)[0]
+        euclideanDistances = []
+        for gallery in self.gallerySet:
+            euclideanDistances.append(DetectionDifference(probe, gallery))
+        ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
+        return ranking
+    
+    #TODO: change name (not dict, list)
+    def chooseProbeSubList(self, peopleid, N):
+        toReturn =  self._chooseSubDict(self.probeDict, peopleid, N)
+        return toReturn
+    
+    def chooseProbeSubDict(self, N):
+        toReturn = {}
+        for probe in self.probeDict:
+            probeList =  self._chooseSubDict(self.probeDict, probe, N)
+            toReturn[probe] = probeList
+        return toReturn
+    
+    def verifyN(self, N):
+        probeDict = self.chooseProbeSubDict(N)
+        galleryDict = self.chooseGallerySubDict(N)
+        distractors = []
+        for probe in probeDict:
+            if len(probeDict[probe]) < N:
+                print "Not enough detections for id " + str(probe) + " in probe set."
+            if probe not in galleryDict:
+                print "There are no galleries for id " + str(probe) + "."
+        for gallery in galleryDict:
+            if len(galleryDict[gallery]) < N:
+                print "Not enough detections for id " + str(probe) + " in gallery set."
+            if gallery not in probeDict:
+                distractors.append(gallery)
+        print "There are " + str(len(distractors)) + " distractors: " + str(distractors)
+            
+    #TODO: change name (not dict, list)
+    def chooseGallerySubDict(self, N):
+        toReturn = {}
+        for gallery in self.galleryDict:
+            galleryList =  self._chooseSubDict(self.galleryDict, gallery, N)
+            toReturn[gallery] = galleryList
+        return toReturn
+    
+    def _chooseSubDict(self, dictToChooseFrom, peopleid, N):
+        assert N==1 or N==3 or N==5 or N==10
+        detectionList = dictToChooseFrom[peopleid]
+        detectionSubset = []
+        if len(detectionList) < N:
+            limit = len(detectionList)
+        else:
+            limit = N 
+        while len(detectionSubset) < limit:
+            detectionToAdd = random.choice(detectionList)
+            if(detectionToAdd not in detectionSubset):
+                detectionSubset.append(detectionToAdd)
+        assert len(detectionSubset) == limit
+        return detectionSubset
+    
+    def _buildDictFromSet(self, detectionSet):
         galleryPerPeopleId = {}
         for gallery in detectionSet:
             if(gallery.getPersonId() not in galleryPerPeopleId):
                 galleryPerPeopleId[gallery.getPersonId()] = [gallery]
             else:
                 galleryPerPeopleId[gallery.getPersonId()].append(gallery)
-        galleryMvsM = {}
-        for personId in galleryPerPeopleId.keys():
-            galleryMvsM[personId] = []
-            addedDetectionsPerId = 0 
-            assert len(galleryPerPeopleId[personId]) >= N
-            while(addedDetectionsPerId < N):
-                detectionToAdd = random.choice(galleryPerPeopleId[personId])
-                if(detectionToAdd not in galleryMvsM):
-                    galleryMvsM[personId].append(detectionToAdd)
-                    addedDetectionsPerId += 1
-            assert len(galleryMvsM[personId]) == N
-        return galleryMvsM
+        return galleryPerPeopleId
     
-    def _prepareDictionariesMvsM(self, N):
-        self.probeDict = self._buildDictFromSet(self.probeSet,N)
-        galleryDictComplete = self._buildDictFromSet(self.gallerySet,N)
-        for peopleid in self.probeDict:
-            assert peopleid in galleryDictComplete #fallisce nel caso in cui nella gallery manchi un id che invece si trova nel probe
-            self.galleryDict[peopleid] = galleryDictComplete[peopleid]
+    def _prepareDictionaries(self):
+        self.probeDict = self._buildDictFromSet(self.probeSet)
+        self.galleryDict = self._buildDictFromSet(self.gallerySet)
     
-    def getProbeKeys(self, N):
-        self._prepareDictionariesMvsM(N)
+    def getProbeKeys(self):
         assert not self.probeDict == {}
         return self.probeDict.keys()
         
-    def _computeMinNxN(self, probePeopleId, galleryPeopleId):
-        minimum = DetectionDifference(self.probeDict[probePeopleId][0], self.galleryDict[galleryPeopleId][0])
-        for probe in self.probeDict[probePeopleId]:
-            for gallery in self.galleryDict[galleryPeopleId]:
+    def _computeMinNxN(self, probeList, galleryList):
+        minimum = DetectionDifference(probeList[0], galleryList[0])
+        for probe in probeList:
+            for gallery in galleryList:
                 tmp = DetectionDifference(probe, gallery)
                 if(DetectionDifference.compare(tmp,minimum)<0):
                     minimum=tmp

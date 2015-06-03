@@ -36,18 +36,29 @@ class Experiment:
     def computeAccuracyMvsM(self):
         self._initAccuracy()
         splits = 100 #greater Stability
+        self.dataset.verifyN(self.N)
         for __ in range(0, splits):
-            for peopleid in self.dataset.getProbeKeys(self.N):
+            for peopleid in self.dataset.getProbeKeys():
                 ranking = self.dataset.getRankingMvsM(peopleid, self.N)
                 self._computeRankedAccuracy(ranking)
         return self.accuracies
+    
+    def computeAccuracySvsAll(self):
+        self._initAccuracy()
+        splits = 1
+        probes = self.dataset.getProbeKeys()
+        for __ in range(0, splits):
+            for probe in probes:
+                ranking = self.dataset.getRankingSvsAll(probe)
+                self._computeRankedAccuracy(ranking)
+        return self.accuracies
+            
     
     def computeAndPlotCMCCurve(self):
         if(self.N==-1):
             self.computeAccuracy()
         elif(self.N==0):
-            print "TODO: Single Vs All"
-            assert not self.N==0 #lancia l'eccezione che manca il SvAll
+            self.computeAccuracySvsAll()
         else:
             self.computeAccuracyMvsM()
         x = []

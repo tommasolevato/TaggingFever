@@ -27,30 +27,42 @@ class Experiment:
         
     def computeAccuracy(self):
         self._initAccuracy()
+        distancesSum = 0
         for probe in self.dataset.probeSet:
             #TODO: move ranking computation in next method
-            ranking = self.dataset.getRanking(probe)
+            ranking, averageDistance = self.dataset.getRanking(probe)
+            distancesSum += averageDistance
             self._computeRankedAccuracy(ranking)
+        average = distancesSum / len(self.dataset.probeSet)
+        print average
         return self.accuracies
     
     def computeAccuracyMvsM(self):
         self._initAccuracy()
         splits = 100 #greater Stability
         self.dataset.verifyN(self.N)
+        distancesSum = 0
         for __ in range(0, splits):
             for peopleid in self.dataset.getProbeKeys():
-                ranking = self.dataset.getRankingMvsM(peopleid, self.N)
+                ranking, averageDistance = self.dataset.getRankingMvsM(peopleid, self.N)
+                distancesSum += averageDistance
                 self._computeRankedAccuracy(ranking)
+        average = distancesSum / (splits*len(self.dataset.getProbeKeys()))
+        print average
         return self.accuracies
     
     def computeAccuracySvsAll(self):
         self._initAccuracy()
         splits = 1
+        distancesSum = 0
         probes = self.dataset.getProbeKeys()
-        for __ in range(0, splits):
+        for ranking in range(0, splits):
             for probe in probes:
-                ranking = self.dataset.getRankingSvsAll(probe)
+                ranking, averageDistance = self.dataset.getRankingSvsAll(probe)
+                distancesSum += averageDistance
                 self._computeRankedAccuracy(ranking)
+        average = distancesSum / (splits*len(probes))
+        print average 
         return self.accuracies
             
     

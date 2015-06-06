@@ -17,7 +17,7 @@ class Dataset:
         for gallery in self.gallerySet:
             euclideanDistances.append(DetectionDifference(probe, gallery))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
-        return ranking, self._computeAverageEuclideanDistance(euclideanDistances)
+        return ranking
             
     def getRankingMvsM(self, peopleid, N):
         probe = self.chooseProbeSubList(peopleid, N)
@@ -26,13 +26,7 @@ class Dataset:
         for galleryId in gallery:
             euclideanDistances.append(self._computeMinNxN(probe, gallery[galleryId]))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
-        return ranking, self._computeAverageEuclideanDistance(euclideanDistances)
-    
-    def _computeAverageEuclideanDistance(self, distances):
-        distancesSum = 0
-        for distance in distances:
-            distancesSum += distance.computeDistance()
-        return distancesSum/len(distances)
+        return ranking
     
     def getRankingSvsAll(self, peopleid):
         probe = self.chooseProbeSubList(peopleid, 1)[0]
@@ -40,7 +34,7 @@ class Dataset:
         for gallery in self.gallerySet:
             euclideanDistances.append(DetectionDifference(probe, gallery))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
-        return ranking, self._computeAverageEuclideanDistance(euclideanDistances)
+        return ranking
     
     #TODO: change name (not dict, list)
     def chooseProbeSubList(self, peopleid, N):

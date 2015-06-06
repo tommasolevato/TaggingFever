@@ -2,6 +2,7 @@ from __future__ import division
 import matplotlib.pyplot as plt
 import pylab
 import numpy
+from scoreHandler import ScoreHandler
 
 class Experiment:
     
@@ -25,48 +26,51 @@ class Experiment:
             else:
                 self.accuracies[aStrategy].addUnsuccessfulProbe()
         
+        
+    #TODO: remove duplication
     def computeAccuracy(self):
         self._initAccuracy()
-        distancesSum = 0
+        handler = ScoreHandler()
         for probe in self.dataset.probeSet:
             #TODO: move ranking computation in next method
-            ranking, averageDistance = self.dataset.getRanking(probe)
-            distancesSum += averageDistance
+            ranking = self.dataset.getRanking(probe)
+            handler.addDetectionRanking(ranking)
             self._computeRankedAccuracy(ranking)
-        average = distancesSum / len(self.dataset.probeSet)
-        print average
+        print "Average score: " + str(handler.computeAverage())
+        print "Score Standard Deviation: " + str(handler.computeStandardDeviation())
         return self.accuracies
     
     def computeAccuracyMvsM(self):
         self._initAccuracy()
+        handler = ScoreHandler()
         splits = 100 #greater Stability
         self.dataset.verifyN(self.N)
-        distancesSum = 0
         for __ in range(0, splits):
             for peopleid in self.dataset.getProbeKeys():
-                ranking, averageDistance = self.dataset.getRankingMvsM(peopleid, self.N)
-                distancesSum += averageDistance
+                ranking = self.dataset.getRankingMvsM(peopleid, self.N)
+                handler.addDetectionRanking(ranking)
                 self._computeRankedAccuracy(ranking)
-        average = distancesSum / (splits*len(self.dataset.getProbeKeys()))
-        print average
+        print "Average score: " + str(handler.computeAverage())
+        print "Score Standard Deviation: " + str(handler.computeStandardDeviation())
         return self.accuracies
     
     def computeAccuracySvsAll(self):
         self._initAccuracy()
         splits = 1
-        distancesSum = 0
+        handler = ScoreHandler()
         probes = self.dataset.getProbeKeys()
         for ranking in range(0, splits):
             for probe in probes:
-                ranking, averageDistance = self.dataset.getRankingSvsAll(probe)
-                distancesSum += averageDistance
+                ranking = self.dataset.getRankingSvsAll(probe)
+                handler.addDetectionRanking(ranking)
                 self._computeRankedAccuracy(ranking)
-        average = distancesSum / (splits*len(probes))
-        print average 
+        print "Average score: " + str(handler.computeAverage())
+        print "Score Standard Deviation: " + str(handler.computeStandardDeviation())
         return self.accuracies
             
     
     def computeAndPlotCMCCurve(self):
+        #TODO: 
         if(self.N==-1):
             self.computeAccuracy()
         elif(self.N==0):

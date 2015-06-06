@@ -56,7 +56,7 @@ class Experiment:
     
     def computeAccuracySvsAll(self):
         self._initAccuracy()
-        splits = 1
+        splits = 30
         handler = ScoreHandler()
         probes = self.dataset.getProbeKeys()
         for ranking in range(0, splits):

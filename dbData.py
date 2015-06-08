@@ -34,6 +34,7 @@ class DBData:
         
     @staticmethod
     def _loadProbeData():
+        DBData.probes = []
         start = time.time()
         DBData.probeCursor.execute(DBData.probeSelect)
         for rawProbeData in DBData.probeCursor:

@@ -4,9 +4,11 @@ import random
 
 class Dataset:
     
-    def __init__(self, probeSet, gallerySet):
+    def __init__(self, probeSet, gallerySet, camera, descriptor):
         self.probeSet = probeSet
         self.gallerySet = gallerySet
+        self.camera = camera
+        self.descriptor = descriptor
         self.probeDict = {}
         self.galleryDict = {}
         self._prepareDictionaries()

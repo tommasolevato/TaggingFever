@@ -6,10 +6,11 @@ from scoreHandler import ScoreHandler
 
 class Experiment:
     
-    def __init__(self, dataset, N):
+    def __init__(self, dataset, N, path):
         self.dataset = dataset
         self.accuracyStrategies = []
         self.N = N
+        self.path = path
         
     def addAccuracyStrategy(self, aStrategy):
         self.accuracyStrategies.append(aStrategy)
@@ -92,7 +93,8 @@ class Experiment:
         ax.grid()
         ax.set_ylabel("Recognition Rate")
         ax.set_ylim(0, 101)
-        pylab.show()
+        #pylab.show()
+        pylab.savefig(self.path + '.png')
     
     class Accuracy:
         def __init__(self):

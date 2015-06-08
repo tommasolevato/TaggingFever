@@ -9,16 +9,20 @@ class Experiment:
     def __init__(self, dataset, N, path):
         self.dataset = dataset
         self.accuracyStrategies = []
+        self.scoreHandlers = []
         self.N = N
         self.path = path
         
     def addAccuracyStrategy(self, aStrategy):
         self.accuracyStrategies.append(aStrategy)
+        self.scoreHandlers.append(ScoreHandler())
         
     def _initAccuracy(self):
         self.accuracies = {}
+        self.scoreHandlers = []
         for aStrategy in self.accuracyStrategies:
             self.accuracies[aStrategy] = Experiment.Accuracy()
+            self.scoreHandlers.append(ScoreHandler())
             
     def _computeRankedAccuracy(self,ranking):
         for aStrategy in self.accuracyStrategies:
@@ -35,11 +39,30 @@ class Experiment:
         for probe in self.dataset.probeSet:
             #TODO: move ranking computation in next method
             ranking = self.dataset.getRanking(probe)
+            self._updateScoreHandlers(ranking)
             handler.addDetectionRanking(ranking)
             self._computeRankedAccuracy(ranking)
         print "Average score: " + str(handler.computeAverage())
         print "Score Standard Deviation: " + str(handler.computeStandardDeviation())
         return self.accuracies
+    
+    def _updateScoreHandlers(self, ranking):
+        i = 0
+        for anElement in ranking:
+            self.scoreHandlers[i].addDetectionDifference(anElement)
+            i += 1
+            if i == len(self.accuracyStrategies)-1:
+                break
+    
+    def _getScores(self):
+        average = []
+        std = []
+        for anHandler in self.scoreHandlers:
+            if not anHandler.isEmpty():
+                average.append(anHandler.computeAverage())
+                std.append(anHandler.computeStandardDeviation())
+        return average, std
+    
     
     def computeAccuracyMvsM(self):
         self._initAccuracy()
@@ -49,6 +72,7 @@ class Experiment:
         for __ in range(0, splits):
             for peopleid in self.dataset.getProbeKeys():
                 ranking = self.dataset.getRankingMvsM(peopleid, self.N)
+                self._updateScoreHandlers(ranking)
                 handler.addDetectionRanking(ranking)
                 self._computeRankedAccuracy(ranking)
         print "Average score: " + str(handler.computeAverage())
@@ -63,6 +87,7 @@ class Experiment:
         for ranking in range(0, splits):
             for probe in probes:
                 ranking = self.dataset.getRankingSvsAll(probe)
+                self._updateScoreHandlers(ranking)
                 handler.addDetectionRanking(ranking)
                 self._computeRankedAccuracy(ranking)
         print "Average score: " + str(handler.computeAverage())
@@ -85,6 +110,7 @@ class Experiment:
             rank.append(self.accuracies[aStrategy].computeYourself() * 100)
         __, ax = plt.subplots()
         print rank #To be printed in a result file
+        
         ax.plot(x,rank)
         ax.set_title("CMC-Curve")
         ax.set_xlabel("Rank")
@@ -95,6 +121,17 @@ class Experiment:
         ax.set_ylim(0, 101)
         #pylab.show()
         pylab.savefig(self.path + '.png')
+        average, std = self._getScores()
+        x = numpy.arange(1, len(average)+1, 1)
+        print average
+        print std
+        __, ax = plt.subplots()
+        ax.plot(x, average)
+        ax.set_title("Average Distance per Rank")
+        ax.set_xlabel("Rank")
+        ax.set_ylabel("Average Distance")
+        ax.grid()
+        pylab.savefig(self.path + '-distances.png')
     
     class Accuracy:
         def __init__(self):

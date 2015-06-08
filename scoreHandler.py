@@ -6,7 +6,7 @@ class ScoreHandler:
     def __init__(self):
         self.differences = []
         
-    def  addDetectionDifference(self, aDetectionDifference):
+    def addDetectionDifference(self, aDetectionDifference):
         self.differences.append(aDetectionDifference.computeDistance())
         
     def addDetectionRanking(self, aRanking):
@@ -18,5 +18,8 @@ class ScoreHandler:
     
     def computeStandardDeviation(self):
         return numpy.std(self.differences)
+    
+    def isEmpty(self):
+        return self.differences == []
     
     

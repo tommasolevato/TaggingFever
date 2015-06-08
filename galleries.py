@@ -15,8 +15,8 @@ parser.add_argument('N', type=int) #N=-1:(AllvAll), N=0(SvAll), N=1 (SvS) N=3,5,
 args = parser.parse_args()
 args = vars(args)
 
-descriptorList = [2]
-NList = [1]
+descriptorList = [3,4]
+NList = [0,1,3,5,10]
 camList = [1]
 #visList = [0.5, 0.75, 1]
 

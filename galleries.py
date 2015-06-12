@@ -4,6 +4,7 @@ from accuracyStrategy import AccuracyStrategy
 from dataset import Dataset
 import argparse
 import sys
+from modalityFolderName import getModalityFolderName
 
 #TODO: move in a function
 parser = argparse.ArgumentParser()
@@ -15,25 +16,19 @@ parser.add_argument('N', type=int) #N=-1:(AllvAll), N=0(SvAll), N=1 (SvS) N=3,5,
 args = parser.parse_args()
 args = vars(args)
 
-descriptorList = [3,4]
-NList = [0,1,3,5,10]
+descriptorList = [1]
+NList = [3]
 camList = [1]
 #visList = [0.5, 0.75, 1]
-
-def getModalityFolderName(N):
-    if N==3 or N==5 or N==10:
-        return str(N)+'v'+str(N)
-    if N==1:
-        return 'SvS'
-    if N==0:
-        return 'SvA'
 
 for d in descriptorList:
     for n in NList:
         for c in camList:
+            sys.stdout = sys.__stdout__
             args['descriptor'] = d
             args['N'] = n
             args['cam'] = c
+            print args
             path = '/home/tommaso/LiClipse Workspace/Mnemosyne/curves/cam' + str(args['cam']) + '/' + getModalityFolderName(args['N']) + '/h' + str(args['height']) + '_v' + str(int(args['visibility_ratio']*100)) + '/d' + str(args['descriptor']) + '/'
             filename = 'c' + str(args['cam']) + '_h' + str(args['height']) + '_v' + str(int(args['visibility_ratio'] * 100)) + '_' + getModalityFolderName(args['N']) + '_d' + str(args['descriptor'])
             f = open(path+filename, 'w')

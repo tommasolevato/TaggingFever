@@ -61,7 +61,7 @@ class Dataset:
                 print "There are no galleries for id " + str(probe) + "."
         for gallery in galleryDict:
             if len(galleryDict[gallery]) < N:
-                print "Not enough detections for id " + str(probe) + " in gallery set."
+                print "Not enough detections for id " + str(gallery) + " in gallery set."
             if gallery not in probeDict:
                 distractors.append(gallery)
         print "There are " + str(len(distractors)) + " distractors: " + str(distractors)

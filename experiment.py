@@ -121,6 +121,7 @@ class Experiment:
         ax.set_ylim(0, 101)
         #pylab.show()
         pylab.savefig(self.path + '.png')
+        plt.close()
         average, std = self._getScores()
         x = numpy.arange(1, len(average)+1, 1)
         print average
@@ -132,6 +133,7 @@ class Experiment:
         ax.set_ylabel("Average Distance")
         ax.grid()
         pylab.savefig(self.path + '-distances.png')
+        plt.close()
     
     class Accuracy:
         def __init__(self):

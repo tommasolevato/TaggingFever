@@ -16,3 +16,6 @@ class Detection:
     
     def __repr__(self):
         return "ID=" + `self.personId`
+    
+    def getId(self):
+        return self.getPersonId()

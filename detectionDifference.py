@@ -25,7 +25,7 @@ class DetectionDifference:
                         minimum=tmp
             return minimum.computeDistance()
         else:
-            return norm(self.firstDetectionGroup.description - self.secondDetectionGroup.description)
+            return norm(self.firstDetectionGroup.getPersonDescription() - self.secondDetectionGroup.getPersonDescription())
         
     #TODO: farne un metodo di istanza
     @staticmethod

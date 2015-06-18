@@ -1,33 +1,23 @@
 import random
 from detectionGroup import DetectionGroup
 
-class Modality:
+class Modality(object):
     def __init__(self, probes, galleries):
         self.probes = probes
         self.galleries = galleries
         
-    def __getDictionary(self, setToChooseFrom):
+    def getDictionary(self, setToChooseFrom):
         detectionsDict = {}
         for detection in setToChooseFrom:
-            if detection.getPersonId() not in detectionsDict:
-                detectionsDict[detection.getPersonId()] = [detection]
+            if detection.getId() not in detectionsDict:
+                detectionsDict[detection.getId()] = [detection]
             else:
-                detectionsDict[detection.getPersonId()].append(detection)
+                detectionsDict[detection.getId()].append(detection)
         return detectionsDict
 
 class SvSModality(Modality):
     def __init__(self, probes, galleries):
         Modality.__init__(self, probes, galleries)
-        
-    #TODO: spostare in Modality
-    def __getDictionary(self, setToChooseFrom):
-        detectionsDict = {}
-        for detection in setToChooseFrom:
-            if detection.getPersonId() not in detectionsDict:
-                detectionsDict[detection.getPersonId()] = [detection]
-            else:
-                detectionsDict[detection.getPersonId()].append(detection)
-        return detectionsDict
         
     #TODO: renderlo astratto
     def getSplits(self):
@@ -35,9 +25,8 @@ class SvSModality(Modality):
         galleriesToTest = self.__getRightSplitFromSet(self.galleries)
         return probesToTest, galleriesToTest
         
-    
     def __getRightSplitFromSet(self, setToChooseFrom):
-        detectionsDict = self.__getDictionary(setToChooseFrom)
+        detectionsDict = self.getDictionary(setToChooseFrom)
         detectionsToReturn = []
         for probeId in detectionsDict:
             toAppend = random.choice(detectionsDict[probeId])
@@ -51,22 +40,13 @@ class MvsMModality(Modality):
         Modality.__init__(self, probes, galleries)
         self.N = N
     
-    def __getDictionary(self, setToChooseFrom):
-        detectionsDict = {}
-        for detection in setToChooseFrom:
-            if detection.getPersonId() not in detectionsDict:
-                detectionsDict[detection.getPersonId()] = [detection]
-            else:
-                detectionsDict[detection.getPersonId()].append(detection)
-        return detectionsDict
-    
     def getSplits(self):
         probesToTest = self.__getRightSplitFromSet(self.probes)
         galleriesToTest = self.__getRightSplitFromSet(self.galleries)
         return probesToTest, galleriesToTest
     
     def __getRightSplitFromSet(self, setToChooseFrom):
-        detectionsDict = self.__getDictionary(setToChooseFrom)
+        detectionsDict = self.getDictionary(setToChooseFrom)
         detectionsToReturn = []
         for personId in detectionsDict:
             detectionsList = detectionsDict[personId]
@@ -90,24 +70,16 @@ class SvsAllModality(Modality):
     def __init__(self, probes, galleries):
         Modality.__init__(self, probes, galleries)
         
-    def __getDictionary(self, setToChooseFrom):
-        detectionsDict = {}
-        for detection in setToChooseFrom:
-            if detection.getPersonId() not in detectionsDict:
-                detectionsDict[detection.getPersonId()] = [detection]
-            else:
-                detectionsDict[detection.getPersonId()].append(detection)
-        return detectionsDict
-        
     def getSplits(self):
         probesToTest = self.__getProbeSplit()
         galleriesToTest = self.galleries
         return probesToTest, galleriesToTest
         
     def __getProbeSplit(self):
-        detectionsDict = self.__getDictionary(self.probes)
+        detectionsDict = self.getDictionary(self.probes)
         detectionsToReturn = []
         for probeId in detectionsDict:
+            #TODO: non remove ma controllo
             toAppend = random.choice(detectionsDict[probeId])
             detectionsDict[probeId].remove(toAppend)
             detectionsToReturn.append(toAppend)

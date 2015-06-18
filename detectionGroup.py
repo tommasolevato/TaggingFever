@@ -4,6 +4,9 @@ class DetectionGroup:
       
     def getPersonId(self):
         return self.detections[0].getPersonId()
-      
+    
     def getDetections(self):
         return self.detections
+    
+    def getId(self):
+        return self.getPersonId()

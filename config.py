@@ -1,3 +1,5 @@
+#legge i parametri tipo connessione db o cartelle dal file config
+
 class Config():
 
     dict = {}
@@ -9,24 +11,32 @@ class Config():
 
     @staticmethod
     def getUsername():
-        return Config.dict["username"]
+        return Config.dict["user"]
     
     @staticmethod
     def getPassword():
-        return Config.dict["password"]
+        return Config.dict["passwd"]
     
     @staticmethod
     def getHost():
         return Config.dict["host"]
     
     @staticmethod
-    def getDatabase():
-        return Config.dict["database"]
-    
-    @staticmethod
     def getSocket():
         return Config.dict["socket"]
     
     @staticmethod
-    def getAllParams():
-        return Config.dict
+    def getAllDbParams():
+        dictToReturn = {}
+        dictToReturn['host'] = Config.getHost()
+        dictToReturn['user'] = Config.getUsername()
+        dictToReturn['passwd'] = Config.getPassword()
+        try:
+            dictToReturn['socket'] = Config.getSocket()
+        except KeyError:
+            pass
+        return dictToReturn
+    
+    @staticmethod
+    def getTestPath():
+        return Config.dict['test_path']

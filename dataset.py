@@ -1,26 +1,37 @@
 from __future__ import division
 from detectionDifference import DetectionDifference
 import random
+import numpy
+from detection import Detection
 
+
+#contiene i set di probe e gallery di interesse (dati al costruttore) e si occupa di calcolare i ranking
+#TODO: non passare i set ma prenderli dal db
 class Dataset:
     
-    def __init__(self, probeSet, gallerySet, camera, descriptor):
+    def __init__(self, probeSet, gallerySet):
         self.probeSet = probeSet
         self.gallerySet = gallerySet
-        self.camera = camera
-        self.descriptor = descriptor
         self.probeDict = {}
         self.galleryDict = {}
-        self._prepareDictionaries()
+        #TODO: scommentare
+        #self._prepareDictionaries()
         
-    # TODO: change name and signature
     def getRanking(self, probe):
         euclideanDistances = []
         for gallery in self.gallerySet:
             euclideanDistances.append(DetectionDifference(probe, gallery))
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
-            
+    
+    def getRankingTrace(self, probe, galleries):
+        euclideanDistances = []
+        for gallery in galleries:
+            euclideanDistances.append(DetectionDifference(probe, gallery))
+        ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
+        return ranking
+    
+    #TODO: spostare in ranking
     def getRankingMvsM(self, peopleid, N):
         probe = self.chooseProbeSubList(peopleid, N)
         gallery = self.chooseGallerySubDict(N)
@@ -30,6 +41,27 @@ class Dataset:
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
     
+    def _prepareTraceSets(self, traceProbesDict, traceGalleriesDict):
+        probes = []
+        galleries = []
+        for k in traceProbesDict:
+            listToChooseFrom = traceProbesDict[k]
+            detection = random.choice(listToChooseFrom)
+            probes.append(detection)
+        raw_input()
+        for k in traceGalleriesDict:
+            listToAverage = traceGalleriesDict[k]
+            desc = self._average(listToAverage)
+            print listToAverage[0].getPersonId()
+            galleries.append(Detection(listToAverage[0].getPersonId(), desc))
+        return probes, galleries
+    
+    def _average(self, list):
+        sum = numpy.zeros(len(list[0].getPersonDescription()))
+        for detection in list:
+            sum = sum + detection.getPersonDescription()
+        return numpy.divide(sum, len(list))
+    
     def getRankingSvsAll(self, peopleid):
         probe = self.chooseProbeSubList(peopleid, 1)[0]
         euclideanDistances = []
@@ -38,7 +70,6 @@ class Dataset:
         ranking = sorted(euclideanDistances, cmp=DetectionDifference.compare)
         return ranking
     
-    #TODO: change name (not dict, list)
     def chooseProbeSubList(self, peopleid, N):
         toReturn =  self._chooseSubDict(self.probeDict, peopleid, N)
         return toReturn
@@ -66,7 +97,6 @@ class Dataset:
                 distractors.append(gallery)
         print "There are " + str(len(distractors)) + " distractors: " + str(distractors)
             
-    #TODO: change name (not dict, list)
     def chooseGallerySubDict(self, N):
         toReturn = {}
         for gallery in self.galleryDict:

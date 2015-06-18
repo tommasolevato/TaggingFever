@@ -9,3 +9,10 @@ class Detection:
     
     def getPersonDescription(self):
         return self.description
+    
+    #TODO: Bruttura
+    def getDetections(self):
+        return [self]
+    
+    def __repr__(self):
+        return "ID=" + `self.personId`

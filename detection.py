@@ -1,11 +1,11 @@
 class Detection:
     
-    def __init__(self, personId, description):
-        self.personId = personId
+    def __init__(self, mainId, description):
+        self.mainId = mainId
         self.description = description
         
     def getPersonId(self):
-        return self.personId
+        return self.mainId
     
     def getPersonDescription(self):
         return self.description
@@ -15,7 +15,7 @@ class Detection:
         return [self]
     
     def __repr__(self):
-        return "ID=" + `self.personId`
+        return "ID=" + `self.mainId`
     
     def getId(self):
         return self.getPersonId()

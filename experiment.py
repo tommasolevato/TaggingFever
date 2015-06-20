@@ -5,8 +5,7 @@ from config import Config
 import matplotlib.pyplot as plt
 import pylab
 import numpy
-from scoreHandler import ScoreHandler
-from modality import SvSModality, SvsAllModality, MvsMModality
+from modality import SvSModality, SvsAllModality, MvsMModality, AllvsAllModality
 from ranking import Ranking
 
 #calcola l'accuratezza di un insieme di probe contro un insieme di gallery secondo le modalità di interesse
@@ -17,23 +16,23 @@ class Experiment:
         self.dataset = dataset
         self.accuracyStrategies = []
         self.scoreHandlers = []
-        self.N = self.createModality(N)
+        self.createModality(N)
         #TODO: move away from constructor
         self.path = Config.getTestPath()
     
     #TODO: changeName
     def computeAccuracy(self):
-        splits = 100
-        for __ in range(0, splits):
+        for __ in range(0, self.modality.getNumberOfSplits()):
             probes, galleries = self.modality.getSplits()
             for probe in probes:
                 ranking = Ranking(probe, galleries)
                 for aStrategy in self.accuracyStrategies:
                     aStrategy.updateWithNewProbe(ranking)
         
-        
     def createModality(self, N):
-        if N==0:
+        if N==-1:
+            self.modality = AllvsAllModality(self.dataset.getProbeSet(), self.dataset.getGallerySet())
+        elif N==0:
             self.modality = SvsAllModality(self.dataset.getProbeSet(), self.dataset.getGallerySet())
         elif N==1:
             self.modality = SvSModality(self.dataset.getProbeSet(), self.dataset.getGallerySet())

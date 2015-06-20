@@ -14,10 +14,38 @@ class Modality(object):
             else:
                 detectionsDict[detection.getId()].append(detection)
         return detectionsDict
+    
+    @staticmethod
+    def getName(N):
+        if N == -1:
+            return 'AvA'
+        elif N == 0:
+            return 'SvA'
+        elif N == 1:
+            return 'SvS'
+        else:
+            return str(N) + 'v' + str(N)
+    
+    #TODO: generatore
+    def getNumberOfSplits(self):
+        return self.numberOfSplits
+    
+    
+    
+class AllvsAllModality(Modality):
+    def __init__(self, probes, galleries):
+        Modality.__init__(self, probes, galleries)
+        self.numberOfSplits = 1
+        
+    def getSplits(self):
+        return self.probes, self.galleries
+
+
 
 class SvSModality(Modality):
     def __init__(self, probes, galleries):
         Modality.__init__(self, probes, galleries)
+        self.numberOfSplits = 100
         
     #TODO: renderlo astratto
     def getSplits(self):
@@ -35,10 +63,12 @@ class SvSModality(Modality):
         return detectionsToReturn
 
 
+
 class MvsMModality(Modality):
     def __init__(self, probes, galleries, N):
         Modality.__init__(self, probes, galleries)
         self.N = N
+        self.numberOfSplits = 100
     
     def getSplits(self):
         probesToTest = self.__getRightSplitFromSet(self.probes)
@@ -66,9 +96,12 @@ class MvsMModality(Modality):
             toReturn.append(toAppend)
         return toReturn
     
+    
+    
 class SvsAllModality(Modality):
     def __init__(self, probes, galleries):
         Modality.__init__(self, probes, galleries)
+        self.numberOfSplits = 100
         
     def getSplits(self):
         probesToTest = self.__getProbeSplit()

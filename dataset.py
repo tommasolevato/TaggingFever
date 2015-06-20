@@ -2,27 +2,35 @@ from dbData import DBData
 
 #contiene i set di probe e gallery di interesse (dati al costruttore) e si occupa di calcolare i ranking
 #TODO: non passare i set ma prenderli dal db
-class Dataset:
+class DetectionsDataset:
     
     def __init__(self, args):
         self.height = args['height']
         self.ratio = args['visibility_ratio']
         self.descriptor = args['descriptor']
         self.cam = args['cam']
-        self.traces = args['traces']
     
     def getProbeSet(self):
-        DBData.initializeWithSingleValues(self.height, self.ratio, self.descriptor, self.cam)
-        if self.traces == True:
-            return DBData.getProbeTraces()
+        DBData.initializeDetectionsParams(self.height, self.ratio, self.descriptor, self.cam)
         return DBData.getProbeData()
     
     def getGallerySet(self):
-        DBData.initializeWithSingleValues(self.height, self.ratio, self.descriptor, self.cam)
-        if self.traces == True:
-            return DBData.getGalleryTraces(self.cam)
+        DBData.initializeDetectionsParams(self.height, self.ratio, self.descriptor, self.cam)
         return DBData.getGalleryData(self.cam)
 
+class TracesDataset:
+    def __init__(self, args):
+        self.cam = args['cam']
+        self.traceType = args['trace_type']
+    
+    def getProbeSet(self):
+        DBData.initializeTracesParams(self.cam, self.traceType)
+        return DBData.getProbeTraces()
+    
+    def getGallerySet(self):
+        DBData.initializeTracesParams(self.cam, self.traceType)
+        return DBData.getGalleryTraces(self.cam)
+    
 #     def getRankingTrace(self, probe, galleries):
 #         euclideanDistances = []
 #         for gallery in galleries:

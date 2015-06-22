@@ -2,3 +2,5 @@ host=
 user=
 passwd=
 unix_socket=
+detections_test_path=
+traces_test_path=

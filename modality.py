@@ -3,9 +3,9 @@ from detectionGroup import DetectionGroup
 from abc import abstractmethod
 
 class Modality(object):
-    def __init__(self, probes, galleries):
-        self.probes = probes
-        self.galleries = galleries
+    def __init__(self, dataset):
+        self.probes = dataset.getProbeSet()
+        self.galleries = dataset.getGallerySet()
         
     def getDictionary(self, setToChooseFrom):
         detectionsDict = {}
@@ -22,11 +22,11 @@ class Modality(object):
     
     @staticmethod
     def getName(N):
-        if N == -1:
+        if str(N) == 'AvA':
             return 'AvA'
-        elif N == 0:
+        elif str(N) == 'SvA':
             return 'SvA'
-        elif N == 1:
+        elif N == '1':
             return 'SvS'
         else:
             return str(N) + 'v' + str(N)
@@ -37,8 +37,8 @@ class Modality(object):
     
     
 class AllvsAllModality(Modality):
-    def __init__(self, probes, galleries):
-        Modality.__init__(self, probes, galleries)
+    def __init__(self, dataset):
+        Modality.__init__(self, dataset)
         self.numberOfSplits = 1
         
     def getSplits(self):
@@ -46,9 +46,9 @@ class AllvsAllModality(Modality):
 
 
 
-class SvSModality(Modality):
-    def __init__(self, probes, galleries):
-        Modality.__init__(self, probes, galleries)
+class SvsSModality(Modality):
+    def __init__(self, dataset):
+        Modality.__init__(self, dataset)
         self.numberOfSplits = 100
         
     def getSplits(self):
@@ -68,8 +68,8 @@ class SvSModality(Modality):
 
 
 class MvsMModality(Modality):
-    def __init__(self, probes, galleries, N):
-        Modality.__init__(self, probes, galleries)
+    def __init__(self, dataset, N):
+        Modality.__init__(self, dataset)
         self.N = N
         self.numberOfSplits = 100
     
@@ -102,8 +102,8 @@ class MvsMModality(Modality):
     
     
 class SvsAllModality(Modality):
-    def __init__(self, probes, galleries):
-        Modality.__init__(self, probes, galleries)
+    def __init__(self, dataset):
+        Modality.__init__(self, dataset)
         self.numberOfSplits = 100
         
     def getSplits(self):
@@ -115,7 +115,6 @@ class SvsAllModality(Modality):
         detectionsDict = self.getDictionary(self.probes)
         detectionsToReturn = []
         for probeId in detectionsDict:
-            #TODO: non remove ma controllo
             toAppend = random.choice(detectionsDict[probeId])
             detectionsDict[probeId].remove(toAppend)
             detectionsToReturn.append(toAppend)

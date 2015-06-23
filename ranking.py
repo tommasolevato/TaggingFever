@@ -21,7 +21,6 @@ class Ranking:
     def getProbeId(self):
         return self.idToRecognise
     
-    #TODO: forse n e non n-1? in informatica si conta da 0|
     def getNthRankedDetectionId(self, n):
         return self.getRanking()[n-1].getGalleryDetection().getPersonId()
     

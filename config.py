@@ -21,7 +21,7 @@ class Config():
     
     @staticmethod
     def getSocket():
-        return Config.dict["socket"]
+        return Config.dict["unix_socket"]
     
     @staticmethod
     def getAllDbParams():
@@ -30,7 +30,7 @@ class Config():
         dictToReturn['user'] = Config.getUsername()
         dictToReturn['passwd'] = Config.getPassword()
         try:
-            dictToReturn['socket'] = Config.getSocket()
+            dictToReturn['unix_socket'] = Config.getSocket()
         except KeyError:
             pass
         return dictToReturn

@@ -5,17 +5,15 @@ from __future__ import division
 import matplotlib.pyplot as plt
 import pylab
 import numpy
-from modality import SvSModality, SvsAllModality, MvsMModality, AllvsAllModality
 from ranking import Ranking
 
 class Experiment:
     
-    def __init__(self, dataset, N, filenameToSaveFigureTo):
-        self.dataset = dataset
+    def __init__(self, modality, filenameToSaveFigureTo):
         self.accuracyStrategies = []
         self.scoreHandlers = []
-        self.createModality(N)
         self.path = filenameToSaveFigureTo
+        self.modality = modality
     
     def computeAccuracy(self):
         for __ in range(0, self.modality.getNumberOfSplits()):
@@ -24,18 +22,6 @@ class Experiment:
                 ranking = Ranking(probe, galleries)
                 for aStrategy in self.accuracyStrategies:
                     aStrategy.updateWithNewProbe(ranking)
-        
-    def createModality(self, N):
-        if N==-1:
-            self.modality = AllvsAllModality(self.dataset.getProbeSet(), self.dataset.getGallerySet())
-        elif N==0:
-            self.modality = SvsAllModality(self.dataset.getProbeSet(), self.dataset.getGallerySet())
-        elif N==1:
-            self.modality = SvSModality(self.dataset.getProbeSet(), self.dataset.getGallerySet())
-        elif N==3 or N==5 or N==10:
-            self.modality = MvsMModality(self.dataset.getProbeSet(), self.dataset.getGallerySet(), N)
-        else:
-            raise ValueError("N must be either 0, 1, 3, 5 or 10")
             
     def addAccuracyStrategy(self, aStrategy):
         self.accuracyStrategies.append(aStrategy)

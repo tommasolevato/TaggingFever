@@ -1,5 +1,4 @@
 from __future__ import division
-from __builtin__ import True
 
 class AccuracyStrategy:
     

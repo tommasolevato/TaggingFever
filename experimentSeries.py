@@ -3,7 +3,8 @@
 
 import sys
 from config import Config
-from modality import Modality
+from modality import Modality, AllvsAllModality, SvsAllModality, SvsSModality,\
+    MvsMModality
 from dataset import DetectionsDataset
 from dataset import TracesDataset
 import os
@@ -20,7 +21,7 @@ class ExperimentSeries:
             self.__completeArgsIfNotSpecified('visibility_ratio', [0, 0.5, 0.75, 1])
             self.__completeArgsIfNotSpecified('descriptor', [1, 2, 3 ,4])
             self.__completeArgsIfNotSpecified('cam', [1, 2, 3, 4])
-            self.__completeArgsIfNotSpecified('N', [0, 1, 5, 10])
+            self.__completeArgsIfNotSpecified('N', ['SvA', 1, 5, 10])
         if args['traces'] == True:
             self.__completeArgsIfNotSpecified('cam', [1, 2, 3, 4])
             self.__completeArgsIfNotSpecified('trace_type', [4, 5])
@@ -33,7 +34,6 @@ class ExperimentSeries:
             self.args[arg] = valuesToInclude
             
     def __parseAverageStrategy(self):
-        #TODO: brutte ste liste
         strategyList = []
         if 'full' in self.args['average_strategy']:
             strategyList.append(GalleryFullAverageStrategy())
@@ -61,7 +61,8 @@ class ExperimentSeries:
                             print 'Cam=' + str(c) + ', N=' + str(n) + ', height=' + str(h) + ', visibility Ratio=' + str(v) + ', Descriptor=' + str(d)
                             self.__openTestFile(directory, fileToSaveTo)
                             dataset = DetectionsDataset(h, v, d, c)
-                            e = self.__buildExperiment(dataset, n, directory+fileToSaveTo)
+                            modality = self.__createModality(n, dataset)
+                            e = self.__buildExperiment(dataset, modality, directory+fileToSaveTo)
                             e.computeAndPlotCMCCurve()
     
     def __computeTracesSeries(self):
@@ -84,7 +85,17 @@ class ExperimentSeries:
         sys.stdout = f
         
     def __buildExperiment(self, dataset, modality, pathToSaveTo):
-        e = Experiment(dataset, modality, pathToSaveTo)
+        e = Experiment(modality, pathToSaveTo)
         for i in range(1,51):
             e.addAccuracyStrategy(AccuracyStrategy(i))
         return e
+    
+    def __createModality(self, n, dataset):
+        if str(n) == 'AvA':
+            return AllvsAllModality(dataset)
+        elif str(n) == 'SvA':
+            return SvsAllModality(dataset)
+        elif str(n) == '1':
+            return SvsSModality(dataset)
+        else:
+            return MvsMModality(dataset, n)

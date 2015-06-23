@@ -31,7 +31,7 @@ class DBData:
        
     @staticmethod
     def initializeTracesParams(c, t, a):
-        DBData.cam = c
+        DBData.__cam = c
         DBData.traceType = t
         DBData.averageStrategy = a
         
@@ -54,7 +54,7 @@ class DBData:
                 select = DBData.gallerySelect.format(descriptor = DBData.descriptor, height = DBData.height, ratio = DBData.visibilityRatio, cam = DBData.cam)
             start = time.time()
             galleries = DBData.__getDetectionsData(select)
-            print "Finished loading cam" + str(cam) + " gallery data in " + "{0:.2f}".format(time.time() - start) + " seconds."
+            print "Finished loading __cam" + str(cam) + " gallery data in " + "{0:.2f}".format(time.time() - start) + " seconds."
             return galleries
     
     @staticmethod
@@ -68,13 +68,6 @@ class DBData:
         cursor.close()
         connection.close()
         return toReturn
-    
-    @staticmethod    
-    def getAllGalleryData():
-        galleries = []
-        for i in range(0,4):
-            galleries += DBData.getCameraGalleryData(i)
-        return galleries
 
     @staticmethod 
     def getProbeTraces():
@@ -94,7 +87,7 @@ class DBData:
             select = DBData.galleryTraceSelect.format(trace_type=DBData.traceType, cam=cam)
         start = time.time()
         toReturn = DBData.__getTracesData(select, DBData.averageStrategy)
-        print "Finished loading cam" + str(cam) + " gallery traces in " + "{0:.2f}".format(time.time() - start) + " seconds."
+        print "Finished loading __cam" + str(cam) + " gallery traces in " + "{0:.2f}".format(time.time() - start) + " seconds."
         return toReturn
     
     @staticmethod
@@ -120,6 +113,14 @@ class DBData:
         cursor.close()
         connection.close()
         return toReturn
+    
+    #TODO: template method
+    @staticmethod    
+    def getAllGalleryData():
+        galleries = []
+        for i in range(0,4):
+            galleries += DBData.getCameraGalleryData(i)
+        return galleries
         
     @staticmethod
     def getAllGalleryTraces():

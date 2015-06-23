@@ -1,3 +1,4 @@
+#TODO: decorator
 class DetectionGroup:
     def __init__(self, detections):
         self.detections = detections

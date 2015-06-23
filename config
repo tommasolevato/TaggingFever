@@ -1,5 +1,6 @@
-host=localhost
-user=root
-passwd=eddie?54
-detections_test_path=/home/tommaso/LiClipse Workspace/Mnemosyne/curvestmp/
-traces_test_path=/home/tommaso/LiClipse Workspace/Mnemosyne/tracestmp/
+host=
+user=
+passwd=
+detections_test_path=
+traces_test_path=
+unix_socket=

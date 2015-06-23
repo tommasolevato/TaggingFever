@@ -1,6 +1,6 @@
 host=
 user=
 passwd=
-socket=
+unix_socket=
 detections_test_path=
 traces_test_path=
